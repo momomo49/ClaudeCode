@@ -55,6 +55,14 @@
   .cell .foot{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:.6em; opacity:.85; animation:joy 1s infinite;}
   #hero{position:absolute; left:0; top:0; transition:transform .35s ease; pointer-events:none; display:flex; align-items:center; justify-content:center; z-index:2;}
   #heroBody{width:90%; height:90%; display:flex; align-items:center; justify-content:center; transition:transform .3s ease;}
+  #heroBody img{object-fit:contain; pointer-events:none; max-width:none;}
+
+  /* えの きゃら は まわさず、やじるしで むきを みせる */
+  #heroArrow{position:absolute; inset:-18%; transition:transform .3s ease; pointer-events:none; display:none;}
+  #heroArrow.show{display:block;}
+  #heroArrow::before{content:""; position:absolute; left:50%; top:0; transform:translateX(-50%);
+    border-left:13px solid transparent; border-right:13px solid transparent; border-bottom:16px solid #ff5c8a;
+    filter:drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff);}
   #hero.bump #heroBody{animation:bump .4s;}
   #hero.joy #heroBody{animation:joy .6s 2;}
 
@@ -104,6 +112,10 @@
   .fruit:active{transform:translateY(2px); box-shadow:none;}
   #basket .empty{color:#b5a78c; font-size:15px; align-self:center;}
   #homeClose{width:100%; background:var(--pink); color:#fff;}
+  #charPick{display:flex; justify-content:center; gap:10px; margin:-4px 0 14px;}
+  .cpick{border:3px solid transparent; background:#fff; border-radius:16px; width:72px; height:72px; padding:4px; cursor:pointer; box-shadow:0 3px 0 #0002;}
+  .cpick.on{border-color:var(--pink);}
+  .cpick svg, .cpick img{width:100%; height:100%; object-fit:contain;}
   .hidden{display:none !important;}
 </style>
 </head>
@@ -118,6 +130,7 @@
   <h1>やじるし ぱずる</h1>
   <div id="menuChar" aria-label="おうち"></div>
   <div id="menuName"></div>
+  <div id="charPick"></div>
   <div id="courseList"></div>
   <div id="stagePick" class="hidden">
     <div id="courseTitle"></div>
@@ -135,7 +148,7 @@
     <button class="iconbtn sound" aria-label="おと">🔊</button>
   </header>
   <div id="msg"></div>
-  <div id="board"><div id="hero"><div id="heroBody"></div></div></div>
+  <div id="board"><div id="hero"><div id="heroArrow"></div><div id="heroBody"></div></div></div>
 
   <div class="label">ならべた かーど（さわると けせるよ）</div>
   <div id="program"></div>
@@ -163,7 +176,7 @@
   <div id="ovText"></div>
   <div id="ovFruit"></div>
   <div class="ovBtns">
-    <button class="big" id="ovFeed">🏠 ぴよに あげる</button>
+    <button class="big" id="ovFeed">🏠 ごはんを あげる</button>
     <button class="big" id="ovNext">つぎへ</button>
   </div>
 </div></div>
@@ -419,20 +432,25 @@ function solve(P, useKuri){
 }
 
 // ===== せっていと せーぶ =====
-const CHAR = "ぴよ";
+// ===== きゃら =====
+// img: "img/cat_" → img/cat_1.png 〜 img/cat_5.png（1024x1024 を 384 に しゅくしょう、はいけい とうめい）
+const CHARS = [
+  {id:"cat",  name:"にゃんこ", img:"img/cat_"},
+  {id:"piyo", name:"ぴよ",     svg:true},
+];
 const NAMES = {mae:"まえ", migi:"みぎ", hidari:"ひだり", kuri:"くりかえし"};
 const ICONS = {mae:"⬆️", migi:"↪️", hidari:"↩️", kuri:"🔁"};
 const FRUITS = ["🍎","🍌","🍇","🍓","🍑","🍊","🍒","🍈"];
 const LEVELS = [
-  {xp:0,  name:`ちび${CHAR}`},
-  {xp:3,  name:CHAR},
-  {xp:8,  name:`おお${CHAR}`},
-  {xp:15, name:`きんぐ${CHAR}`},
-  {xp:24, name:`にじいろ${CHAR}`},
+  {xp:0,  pre:"ちび"},
+  {xp:3,  pre:""},
+  {xp:8,  pre:"おお"},
+  {xp:15, pre:"きんぐ"},
+  {xp:24, pre:"にじいろ"},
 ];
 const STEP_MS = 520;
 const SAVE_KEY = "yajirushi-puzzle-v2";
-let save = {xp:0, basket:[], cleared:{}};
+let save = {xp:0, basket:[], cleared:{}, char:"cat"};
 try{
   const v = JSON.parse(localStorage.getItem(SAVE_KEY));
   if(v && Array.isArray(v.basket)) save = Object.assign(save, v);
@@ -442,6 +460,13 @@ try{
   }
 }catch(e){}
 function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
+function curChar(){ return CHARS.find(c=>c.id===save.char) || CHARS[0]; }
+function lvName(lv){ return LEVELS[lv].pre + curChar().name; }
+function charArt(lv, ch=curChar()){
+  if(ch.svg) return charSVG(lv);
+  const p = [80,86,92,96,100][lv];
+  return `<img src="${ch.img}${lv+1}.png" alt="${LEVELS[lv].pre+ch.name}" style="width:${p}%;height:${p}%" draggable="false">`;
+}
 function levelOf(xp){ let l=0; LEVELS.forEach((L,i)=>{ if(xp>=L.xp) l=i; }); return l; }
 
 let soundOn = true;
@@ -481,9 +506,19 @@ function charSVG(lv, sizePct=100){
 }
 function refreshChar(){
   const lv = levelOf(save.xp);
-  $("heroBody").innerHTML = charSVG(lv);
-  $("menuChar").innerHTML = charSVG(lv);
-  $("menuName").textContent = `${LEVELS[lv].name}（さわると おうちへ）` + (save.basket.length ? `　🧺${save.basket.length}こ` : "");
+  $("heroBody").innerHTML = charArt(lv);
+  $("menuChar").innerHTML = charArt(lv);
+  $("heroArrow").classList.toggle("show", !curChar().svg);
+  if(P) placeHero(false);
+  const cp = $("charPick"); cp.innerHTML = "";
+  CHARS.forEach(ch => {
+    const b = document.createElement("button");
+    b.className = "cpick" + (ch.id===curChar().id ? " on" : "");
+    b.innerHTML = charArt(lv, ch); b.setAttribute("aria-label", ch.name);
+    b.onclick = () => { save.char = ch.id; persist(); refreshChar(); say(`${lvName(levelOf(save.xp))} に するよ`); };
+    cp.appendChild(b);
+  });
+  $("menuName").textContent = `${lvName(lv)}（さわると おうちへ）` + (save.basket.length ? `　🧺${save.basket.length}こ` : "");
   $("fruitCount").textContent = save.basket.length;
   $("fruitBtn").classList.toggle("has", save.basket.length>0);
 }
@@ -537,7 +572,7 @@ function loadStage(c, i){
   $("palette").classList.toggle("three", !c.useKuri);
   $("stageLabel").textContent = `${c.icon} ${c.name} ${i+1}/${c.stages.length}`;
   buildBoard(); renderProgram(); hideHint();
-  show(`もんだい ${i+1}。${c.stages[i].hint}`);
+  show(`もんだい ${i+1}。${c.stages[i].hint.replaceAll("ぴよ", curChar().name)}`);
   window.scrollTo(0,0);
 }
 function buildBoard(){
@@ -569,10 +604,12 @@ function resetBoard(){
 }
 function placeHero(animate=true){
   const h=$("hero"), body=$("heroBody");
-  if(!animate){ h.style.transition="none"; body.style.transition="none"; }
+  if(!animate){ h.style.transition="none"; body.style.transition="none"; $("heroArrow").style.transition="none"; }
   h.style.transform = `translate(calc(4px + ${hero.c} * (100% + 4px)), calc(4px + ${hero.r} * (100% + 4px)))`;
-  body.style.transform = `rotate(${hero.turns*90}deg)`;
-  if(!animate){ h.offsetHeight; h.style.transition=""; body.style.transition=""; }
+  // ぴよ(え が うえむき) は まわす。えの きゃら は まわさず やじるし を まわす
+  body.style.transform = curChar().svg ? `rotate(${hero.turns*90}deg)` : "none";
+  $("heroArrow").style.transform = `rotate(${hero.turns*90}deg)`;
+  if(!animate){ h.offsetHeight; h.style.transition=""; body.style.transition=""; $("heroArrow").style.transition=""; }
 }
 
 // ===== ぷろぐらむ =====
@@ -680,7 +717,7 @@ function showHint(){
     $("hintCards").innerHTML = "";
     $("hintBox").classList.add("show");
     $("hintBtn").textContent = "💡 もっと ひんと（こたえ）";
-    say("あしあとの ところを とおると いけるよ。ぴよの むきに きを つけてね");
+    say(`あしあとの ところを とおると いけるよ。${curChar().name}の むきに きを つけてね`);
   } else {
     $("hintText").textContent = `こたえの れい（${SOL.count}まい）`;
     const hc=$("hintCards"); hc.innerHTML="";
@@ -705,7 +742,7 @@ function win(){
     const got=[]; for(let i=0;i<n;i++){ const f=FRUITS[Math.floor(Math.random()*FRUITS.length)]; save.basket.push(f); got.push(f); }
     persist(); refreshChar(); pulse($("fruitBtn"),"pop");
     fruitMsg = `${got.join("")} を もらったよ！`;
-    speech = `くだものを ${n}こ もらったよ。${CHAR}に あげてね`;
+    speech = `くだものを ${n}こ もらったよ。${curChar().name}に あげてね`;
   } else {
     fruitMsg = "（くだものは はじめて とけた ときだけ）";
   }
@@ -726,9 +763,9 @@ function nextStage(){
 // ===== おうち =====
 function renderHome(){
   const lv=levelOf(save.xp), L=LEVELS[lv], next=LEVELS[lv+1];
-  $("homeName").textContent=L.name;
+  $("homeName").textContent=lvName(lv);
   $("homeLv").textContent = next ? `あと ${next.xp-save.xp}こ たべると おおきくなるよ` : "いちばん すごい すがたに なったよ！";
-  $("homeChar").innerHTML=charSVG(lv);
+  $("homeChar").innerHTML=charArt(lv);
   $("barIn").style.width = next ? `${(save.xp-L.xp)/(next.xp-L.xp)*100}%` : "100%";
   const b=$("basket"); b.innerHTML="";
   if(save.basket.length===0) b.innerHTML='<span class="empty">もんだいを とくと くだものが もらえるよ</span>';
@@ -742,14 +779,14 @@ function feed(i){
   save.basket.splice(i,1); save.xp++; persist();
   const after=levelOf(save.xp);
   renderHome(); refreshChar(); pulse($("homeChar"),"eat");
-  say(after>before ? `やったー！ ${LEVELS[after].name} に せいちょう したよ！` : "もぐもぐ。おいしい！");
+  say(after>before ? `やったー！ ${lvName(after)} に せいちょう したよ！` : "もぐもぐ。おいしい！");
 }
 function openHome(){
   if(running) return;
   $("overlay").classList.remove("show");
   renderHome(); $("home").classList.add("show");
   const lv=levelOf(save.xp);
-  say(save.basket.length ? `${LEVELS[lv].name} に くだものを あげよう。さわってね` : `${LEVELS[lv].name} だよ。もんだいを とくと くだものが もらえるよ`);
+  say(save.basket.length ? `${lvName(lv)} に くだものを あげよう。さわってね` : `${lvName(lv)} だよ。もんだいを とくと くだものが もらえるよ`);
 }
 let homeFromWin=false;
 
