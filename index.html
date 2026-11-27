@@ -6,157 +6,466 @@
 <title>やじるし ぱずる</title>
 <style>
   :root{
-    --bg:#fff8e7; --panel:#ffffff; --ink:#3b2f2f; --grid:#e9f7e1; --line:#b9dfa8;
-    --mae:#4aa3ff; --migi:#ff8a3d; --hidari:#a66bff; --kuri:#2fbf71; --ng:#ff5c6c;
+    --bg:#fff8e7; --panel:#ffffff; --ink:#3b2f2f; --sub:#8a7a5c; --grid:#e9f7e1; --line:#b9dfa8;
+    --mae:#4aa3ff; --migi:#ff8a3d; --hidari:#a66bff; --kuri:#2fbf71; --pink:#ff5c8a; --hint:#ffb703;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
   html,body{margin:0; background:var(--bg); color:var(--ink);
     font-family:"Hiragino Maru Gothic ProN","Rounded Mplus 1c","BIZ UDPGothic","Meiryo",sans-serif;}
-  body{min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:12px 16px 24px;}
-  header{width:100%; max-width:560px; display:flex; align-items:center; justify-content:space-between; gap:8px;}
-  h1{font-size:22px; margin:4px 0;}
-  .pill{background:var(--panel); border-radius:999px; padding:6px 14px; font-weight:bold; box-shadow:0 2px 0 #0001;}
-  .iconbtn{border:none; background:var(--panel); border-radius:50%; width:48px; height:48px; font-size:24px; box-shadow:0 3px 0 #0002; cursor:pointer;}
-  #msg{width:100%; max-width:560px; margin:8px 0; background:var(--panel); border-radius:16px; padding:10px 14px;
-    font-size:20px; font-weight:bold; text-align:center; min-height:52px; box-shadow:0 2px 0 #0001;}
-  /* board */
-  #board{--n:5; width:min(92vw,420px); aspect-ratio:1; display:grid; grid-template-columns:repeat(var(--n),1fr); grid-template-rows:repeat(var(--n),1fr);
-    gap:4px; background:var(--line); padding:4px; border-radius:16px; position:relative;}
-  
-  .cell{min-width:0; min-height:0; overflow:hidden; background:var(--grid); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:min(9vw,42px);}
-  .cell.path{background:#fff3b0;}
-  #hero{position:absolute; width:calc((100% - 8px - 16px)/5); aspect-ratio:1; left:0; top:0;
-    transition:transform .35s ease; pointer-events:none; display:flex; align-items:center; justify-content:center;}
-  #heroBody{width:86%; height:86%; display:flex; align-items:center; justify-content:center; transition:transform .3s ease;}
-  #hero.bump #heroBody{animation:bump .4s;}
-  #hero.joy #heroBody{animation:joy .6s 2;}
-  @keyframes bump{0%,100%{translate:0 0}30%{translate:-6px 0}60%{translate:6px 0}}
-  @keyframes joy{0%,100%{scale:1}50%{scale:1.25}}
-  /* program */
-  .label{width:100%; max-width:560px; font-weight:bold; margin:14px 0 6px; font-size:18px;}
-  #program{width:100%; max-width:560px; min-height:84px; background:var(--panel); border-radius:16px; padding:8px;
-    display:flex; flex-wrap:wrap; gap:8px; align-items:center; border:3px dashed #e0d3b8;}
-  #program .empty{color:#b5a78c; font-size:18px; padding:0 6px;}
-  #palette{width:100%; max-width:560px; display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
-  .card{border:none; border-radius:14px; color:#fff; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 #0003;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:inherit;}
-  .card:active{transform:translateY(3px); box-shadow:0 1px 0 #0003;}
-  #palette .card{height:88px; font-size:15px; white-space:nowrap;}
-  #palette .card .ico{font-size:34px; line-height:1;}
-  #program .card{width:62px; height:62px; font-size:12px;}
-  #program .card .ico{font-size:26px; line-height:1;}
-  #program .card.now{outline:4px solid #ffd23f; outline-offset:2px;}
-  .mae{background:var(--mae);} .migi{background:var(--migi);} .hidari{background:var(--hidari);} .kuri{background:var(--kuri);}
-  .count{font-size:11px; opacity:.9;}
-  #controls{width:100%; max-width:560px; display:grid; grid-template-columns:1fr 2fr; gap:10px; margin-top:14px;}
-  .big{border:none; border-radius:16px; height:64px; font-size:20px; white-space:nowrap; font-weight:bold; font-family:inherit; cursor:pointer; box-shadow:0 4px 0 #0003;}
+  body{min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:12px 16px 32px;}
+  button{font-family:inherit; color:inherit;}
+  .wrap{width:100%; max-width:560px;}
+  header{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .pill{background:var(--panel); border-radius:999px; padding:6px 14px; font-weight:bold; box-shadow:0 2px 0 #0001; font-size:15px;}
+  .iconbtn{border:none; background:var(--panel); border-radius:50%; width:46px; height:46px; font-size:22px; box-shadow:0 3px 0 #0002; cursor:pointer; flex:none;}
+  #fruitBtn{display:flex; align-items:center; gap:4px; border:none; background:#fff3b0; border-radius:999px; padding:6px 12px;
+    font-size:17px; font-weight:bold; box-shadow:0 3px 0 #0002; cursor:pointer;}
+  #fruitBtn.pop, #fruitBtn.has{animation:joy .9s infinite;}
+  #msg{margin:10px 0; background:var(--panel); border-radius:16px; padding:10px 14px;
+    font-size:19px; font-weight:bold; text-align:center; min-height:50px; box-shadow:0 2px 0 #0001; cursor:pointer;}
+  .big{border:none; border-radius:16px; height:62px; font-size:20px; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 #0003; white-space:nowrap;}
   .big:active{transform:translateY(3px); box-shadow:0 1px 0 #0003;}
   .big:disabled{opacity:.5;}
-  #run{background:#ff5c8a; color:#fff;} #clear{background:#fff; color:var(--ink);}
-  #left{font-size:15px; color:#8a7a5c; margin-top:6px; width:100%; max-width:560px; text-align:right;}
-  /* overlay */
-  #overlay{position:fixed; inset:0; background:#0006; display:none; align-items:center; justify-content:center; padding:16px; z-index:10;}
-  #overlay.show{display:flex;}
-  #ovBox{background:#fff; border-radius:24px; padding:24px; text-align:center; max-width:360px; width:100%;}
-  #ovBox .face{font-size:72px;}
-  #ovBox p{font-size:24px; font-weight:bold; margin:8px 0 18px;}
-  #ovBox button{width:100%; background:#2fbf71; color:#fff;}
-  /* そだてる */
-  #home{position:fixed; inset:0; background:#0006; display:none; align-items:center; justify-content:center; padding:16px; z-index:20;}
-  #home.show{display:flex;}
-  #homeBox{background:#fff8e7; border-radius:24px; padding:20px; text-align:center; max-width:380px; width:100%;}
+  @keyframes bump{0%,100%{translate:0 0}30%{translate:-6px 0}60%{translate:6px 0}}
+  @keyframes joy{0%,100%{scale:1}50%{scale:1.15}}
+
+  /* ===== めにゅー ===== */
+  #menu h1{text-align:center; font-size:30px; margin:16px 0 4px;}
+  #menuChar{width:130px; height:130px; margin:0 auto; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+  #menuName{text-align:center; color:var(--sub); font-weight:bold; margin-bottom:12px;}
+  .course{width:100%; display:flex; align-items:center; gap:12px; border:none; border-radius:20px; padding:14px 16px; margin-bottom:12px;
+    color:#fff; text-align:left; cursor:pointer; box-shadow:0 5px 0 #0003;}
+  .course:active{transform:translateY(3px); box-shadow:0 2px 0 #0003;}
+  .course .ic{font-size:40px;}
+  .course .nm{font-size:24px; font-weight:bold;}
+  .course .ds{font-size:14px; opacity:.95;}
+  .course .ct{margin-left:auto; font-size:18px; font-weight:bold; background:#fff4; border-radius:12px; padding:4px 10px;}
+  .c-easy{background:#2fbf71;} .c-normal{background:#4aa3ff;} .c-hard{background:#a66bff;}
+  #stageGrid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px;}
+  .sbtn{border:none; border-radius:16px; height:76px; font-size:26px; font-weight:bold; background:#fff; box-shadow:0 4px 0 #0002; cursor:pointer; position:relative;}
+  .sbtn .mk{position:absolute; right:6px; top:4px; font-size:16px;}
+  .sbtn.done{background:#fff3b0;}
+  .sbtn:disabled{opacity:.45;}
+  #courseTitle{font-size:24px; font-weight:bold; text-align:center; margin:12px 0 0;}
+
+  /* ===== ばん ===== */
+  #board{width:min(92vw,420px); aspect-ratio:1; display:grid; gap:4px; background:var(--line); padding:4px; border-radius:16px; position:relative; margin:0 auto;}
+  .cell{min-width:0; min-height:0; overflow:hidden; background:var(--grid); border-radius:10px; display:flex; align-items:center; justify-content:center; position:relative;}
+  .cell.path{background:#fff3b0;}
+  .cell .foot{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:.6em; opacity:.85; animation:joy 1s infinite;}
+  #hero{position:absolute; left:0; top:0; transition:transform .35s ease; pointer-events:none; display:flex; align-items:center; justify-content:center; z-index:2;}
+  #heroBody{width:90%; height:90%; display:flex; align-items:center; justify-content:center; transition:transform .3s ease;}
+  #hero.bump #heroBody{animation:bump .4s;}
+  #hero.joy #heroBody{animation:joy .6s 2;}
+
+  /* ===== かーど ===== */
+  .label{font-weight:bold; margin:14px 0 6px; font-size:17px;}
+  #program{min-height:84px; background:var(--panel); border-radius:16px; padding:8px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; border:3px dashed #e0d3b8;}
+  #program .empty{color:#b5a78c; font-size:17px; padding:0 6px;}
+  #left{font-size:15px; color:var(--sub); margin-top:6px; text-align:right;}
+  #palette{display:grid; grid-template-columns:repeat(4,1fr); gap:10px;}
+  #palette.three{grid-template-columns:repeat(3,1fr);}
+  .card{border:none; border-radius:14px; color:#fff !important; font-weight:bold; cursor:pointer; box-shadow:0 4px 0 #0003;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .card:active{transform:translateY(3px); box-shadow:0 1px 0 #0003;}
+  #palette .card{height:86px; font-size:15px; white-space:nowrap;}
+  #palette .card .ico{font-size:32px; line-height:1;}
+  #program .card, #hintCards .card{width:60px; height:60px; font-size:12px;}
+  #program .card .ico, #hintCards .card .ico{font-size:24px; line-height:1;}
+  #program .card.now{outline:4px solid #ffd23f; outline-offset:2px;}
+  .mae{background:var(--mae);} .migi{background:var(--migi);} .hidari{background:var(--hidari);} .kuri{background:var(--kuri);}
+  .count{font-size:11px;}
+  #controls{display:grid; grid-template-columns:1fr 2fr; gap:10px; margin-top:14px;}
+  #run{background:var(--pink); color:#fff;} #clear{background:#fff;}
+  #hintBtn{display:none; width:100%; margin-top:10px; background:var(--hint); color:#fff;}
+  #hintBtn.show{display:block; animation:joy 1.2s infinite;}
+  #hintBox{display:none; margin-top:10px; background:#fff7dd; border:3px solid var(--hint); border-radius:16px; padding:10px;}
+  #hintBox.show{display:block;}
+  #hintBox p{margin:0 0 8px; font-weight:bold;}
+  #hintCards{display:flex; flex-wrap:wrap; gap:8px;}
+
+  /* ===== おーばーれい ===== */
+  .ov{position:fixed; inset:0; background:#0006; display:none; align-items:center; justify-content:center; padding:16px; z-index:20;}
+  .ov.show{display:flex;}
+  .ovBox{background:#fff8e7; border-radius:24px; padding:22px; text-align:center; max-width:380px; width:100%;}
+  #ovFace{font-size:68px;}
+  #ovText{font-size:24px; font-weight:bold; margin:6px 0;}
+  #ovFruit{font-size:22px; font-weight:bold; margin:4px 0 14px; min-height:28px;}
+  .ovBtns{display:grid; gap:10px;}
+  #ovFeed{background:#ffb703; color:#fff;} #ovNext{background:#2fbf71; color:#fff;}
   #homeName{font-size:24px; font-weight:bold; margin:0;}
-  #homeLv{font-size:16px; color:#8a7a5c; margin:4px 0;}
-  #homeChar{width:180px; height:180px; margin:8px auto; display:flex; align-items:center; justify-content:center;}
-  #homeChar svg{transition:width .5s, height .5s;}
+  #homeLv{font-size:15px; color:var(--sub); margin:4px 0;}
+  #homeChar{width:190px; height:190px; margin:6px auto; display:flex; align-items:center; justify-content:center;}
   #homeChar.eat svg{animation:joy .4s 2;}
   #bar{height:16px; background:#eee3c9; border-radius:999px; overflow:hidden; margin:6px 0 12px;}
   #barIn{height:100%; width:0; background:#2fbf71; transition:width .4s;}
-  #basket{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:56px; background:#fff; border-radius:16px; padding:8px; margin-bottom:12px;}
-  .fruit{border:none; background:#fff3b0; border-radius:12px; width:52px; height:52px; font-size:30px; cursor:pointer; box-shadow:0 3px 0 #0002;}
+  #basket{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; min-height:56px; background:#fff; border-radius:16px; padding:8px; margin-bottom:12px; max-height:180px; overflow:auto;}
+  .fruit{border:none; background:#fff3b0; border-radius:12px; width:50px; height:50px; font-size:28px; cursor:pointer; box-shadow:0 3px 0 #0002;}
   .fruit:active{transform:translateY(2px); box-shadow:none;}
-  #basket .empty{color:#b5a78c; font-size:16px; align-self:center;}
-  #homeClose{width:100%; background:#ff5c8a; color:#fff;}
-  #fruitBtn{display:flex; align-items:center; gap:4px; border:none; background:var(--panel); border-radius:999px; padding:6px 12px;
-    font-size:18px; font-weight:bold; font-family:inherit; box-shadow:0 3px 0 #0002; cursor:pointer; color:var(--ink);}
-  #fruitBtn.pop{animation:joy .5s 2;}
-  #ovFruit{font-size:26px; font-weight:bold; margin:-6px 0 16px;}
+  #basket .empty{color:#b5a78c; font-size:15px; align-self:center;}
+  #homeClose{width:100%; background:var(--pink); color:#fff;}
+  .hidden{display:none !important;}
 </style>
 </head>
 <body>
-<header>
-  <span class="pill" id="stageLabel">もんだい 1/3</span>
-  <button id="fruitBtn" aria-label="そだてる">🏠 <span id="fruitCount">0</span>こ</button>
-  <button class="iconbtn" id="sound" aria-label="おと">🔊</button>
-</header>
 
-<div id="msg"></div>
-
-<div id="board"><div id="hero"><div id="heroBody"></div></div></div>
-
-<div class="label">ならべた かーど（さわると けせるよ）</div>
-<div id="program"></div>
-<div id="left"></div>
-
-<div class="label">かーどを えらんでね</div>
-<div id="palette">
-  <button class="card mae" data-t="mae"><span class="ico">⬆️</span>まえ</button>
-  <button class="card migi" data-t="migi"><span class="ico">↪️</span>みぎ</button>
-  <button class="card hidari" data-t="hidari"><span class="ico">↩️</span>ひだり</button>
-  <button class="card kuri" data-t="kuri"><span class="ico">🔁</span>くりかえし</button>
+<!-- ========== めにゅー ========== -->
+<div id="menu" class="wrap">
+  <header>
+    <span></span>
+    <button class="iconbtn sound" aria-label="おと">🔊</button>
+  </header>
+  <h1>やじるし ぱずる</h1>
+  <div id="menuChar" aria-label="おうち"></div>
+  <div id="menuName"></div>
+  <div id="courseList"></div>
+  <div id="stagePick" class="hidden">
+    <div id="courseTitle"></div>
+    <div id="stageGrid"></div>
+    <button class="big" id="backCourse" style="width:100%;margin-top:16px;background:#fff;">← こーすを えらびなおす</button>
+  </div>
 </div>
 
-<div id="controls">
-  <button class="big" id="clear">ぜんぶ けす</button>
-  <button class="big" id="run">▶ うごかす</button>
+<!-- ========== げーむ ========== -->
+<div id="game" class="wrap hidden">
+  <header>
+    <button class="iconbtn" id="toMenu" aria-label="もどる">↩</button>
+    <span class="pill" id="stageLabel"></span>
+    <button id="fruitBtn" aria-label="そだてる">🏠 <span id="fruitCount">0</span></button>
+    <button class="iconbtn sound" aria-label="おと">🔊</button>
+  </header>
+  <div id="msg"></div>
+  <div id="board"><div id="hero"><div id="heroBody"></div></div></div>
+
+  <div class="label">ならべた かーど（さわると けせるよ）</div>
+  <div id="program"></div>
+  <div id="left"></div>
+
+  <button class="big" id="hintBtn">💡 ひんとを みる</button>
+  <div id="hintBox"><p id="hintText"></p><div id="hintCards"></div></div>
+
+  <div class="label">かーどを えらんでね</div>
+  <div id="palette">
+    <button class="card mae" data-t="mae"><span class="ico">⬆️</span>まえ</button>
+    <button class="card migi" data-t="migi"><span class="ico">↪️</span>みぎ</button>
+    <button class="card hidari" data-t="hidari"><span class="ico">↩️</span>ひだり</button>
+    <button class="card kuri" data-t="kuri"><span class="ico">🔁</span>くりかえし</button>
+  </div>
+  <div id="controls">
+    <button class="big" id="clear">ぜんぶ けす</button>
+    <button class="big" id="run">▶ うごかす</button>
+  </div>
 </div>
 
-<div id="overlay"><div id="ovBox">
-  <div class="face" id="ovFace">🎉</div>
-  <p id="ovText">できたね！</p>
+<!-- ========== くりあ ========== -->
+<div id="overlay" class="ov"><div class="ovBox">
+  <div id="ovFace">🎉</div>
+  <div id="ovText"></div>
   <div id="ovFruit"></div>
-  <button class="big" id="ovBtn">つぎへ</button>
+  <div class="ovBtns">
+    <button class="big" id="ovFeed">🏠 ぴよに あげる</button>
+    <button class="big" id="ovNext">つぎへ</button>
+  </div>
 </div></div>
 
-<div id="home"><div id="homeBox">
+<!-- ========== おうち（そだてる） ========== -->
+<div id="home" class="ov"><div class="ovBox">
   <p id="homeName"></p>
   <p id="homeLv"></p>
   <div id="homeChar"></div>
   <div id="bar"><div id="barIn"></div></div>
   <div id="basket"></div>
-  <button class="big" id="homeClose">ぱずるに もどる</button>
+  <button class="big" id="homeClose">もどる</button>
 </div></div>
 
 <script>
-// ===== すてーじ =====
-// dir: 0=うえ 1=みぎ 2=した 3=ひだり / r=ぎょう(うえから) c=れつ(ひだりから)
-const STAGES = [
-  { start:{r:4,c:2,dir:0}, goal:{r:1,c:2}, rocks:[], max:6,
-    hint:"まえ を つかって ほしまで いこう" },
-  { start:{r:4,c:1,dir:0}, goal:{r:2,c:3}, rocks:[[1,1],[0,1]], max:8,
-    hint:"とちゅうで みぎ に まがろう" },
-  { start:{r:4,c:0,dir:1}, goal:{r:0,c:4}, rocks:[[2,2],[1,1],[3,3]], max:6,
-    hint:"かーどは 6まいまで。くりかえし を つかってみよう" },
+// =====================================================================
+//  もんだい（ちず）
+//  . みち / # いわ / G ほし(ごーる) / F くだもの(ぜんぶ とってから ごーる)
+//  ^ > v <  すたーと と さいしょの むき
+//  max は じどうけいさん（さいたんの かーどの かず ＋ よゆう）
+// =====================================================================
+const COURSES = [
+  { id:"easy", name:"かんたん", icon:"🐣", desc:"まえ・みぎ・ひだり を おぼえよう", cls:"c-easy",
+    useKuri:false, slack:2, stages:[
+    { hint:"まえ を つかって ほしまで いこう", map:[
+      ".....",
+      "..G..",
+      ".....",
+      "..^..",
+      "....."]},
+    { hint:"ぴよは みぎを むいてるよ", map:[
+      ".....",
+      ".....",
+      ">...G",
+      ".....",
+      "....."]},
+    { hint:"とちゅうで みぎ に まがろう", map:[
+      ".....",
+      "...G.",
+      ".....",
+      ".....",
+      ".^..."]},
+    { hint:"こんどは ひだり に まがろう", map:[
+      ".....",
+      ".G...",
+      ".....",
+      ".....",
+      "...^."]},
+    { hint:"ぴよは したを むいてるよ。ぴよの まえは どっちかな", map:[
+      "..v..",
+      ".....",
+      ".....",
+      "..G..",
+      "....."]},
+    { hint:"いわを よけて いこう", map:[
+      ".....",
+      "..G..",
+      "..#..",
+      ".....",
+      "..^.."]},
+    { hint:"くだもの を とってから ほしへ いこう", map:[
+      ".....",
+      ".F.G.",
+      ".....",
+      ".....",
+      ".^..."]},
+    { hint:"2かい まがるよ", map:[
+      "G....",
+      ".###.",
+      ".....",
+      ".....",
+      "....^"]},
+  ]},
+  { id:"normal", name:"ふつう", icon:"🐥", desc:"くりかえし を つかおう", cls:"c-normal",
+    useKuri:true, slack:1, stages:[
+    { hint:"まえ を なんかいも おすのは たいへん。くりかえし を つかおう", map:[
+      "......",
+      "......",
+      "......",
+      "......",
+      "......",
+      ">....G"]},
+    { hint:"くりかえし を 2かい つかうよ", map:[
+      ".....G",
+      "......",
+      "......",
+      "......",
+      "......",
+      "^....."]},
+    { hint:"ぴよは したを むいてるよ。ひだり を むくと どっちかな", map:[
+      "v.....",
+      "......",
+      "......",
+      "......",
+      "......",
+      ".....G"]},
+    { hint:"くだもの を とってから ほしへ", map:[
+      "F....G",
+      "......",
+      "......",
+      "......",
+      "......",
+      "^....."]},
+    { hint:"ぴよは ひだりを むいてるよ", map:[
+      "G.....",
+      "#####.",
+      "......",
+      "......",
+      "......",
+      ".....<"]},
+    { hint:"いわの かべの むこうに ほしが あるよ", map:[
+      "......",
+      "..#...",
+      "..#...",
+      "..#...",
+      "..#...",
+      ".^#.G."]},
+    { hint:"くだもの 2こ を あつめよう", map:[
+      ".....G",
+      "......",
+      ".....F",
+      "......",
+      "......",
+      "^....F"]},
+    { hint:"ぐるっと ゆーたーん", map:[
+      "......",
+      ".#....",
+      ".#....",
+      ".#....",
+      ".#....",
+      "^#G..."]},
+  ]},
+  { id:"hard", name:"むずかしい", icon:"🐔", desc:"かーどの かずが ぎりぎり！", cls:"c-hard",
+    useKuri:true, slack:0, stages:[
+    { hint:"かーどは 3まいだけ！ぴよの むきを よく みて", map:[
+      "v....G",
+      "......",
+      "......",
+      "......",
+      "......",
+      "......"]},
+    { hint:"いわが じゃまだよ。まがる ところを かんがえよう", map:[
+      ".....G",
+      "#####.",
+      "......",
+      "......",
+      "......",
+      "^#...."]},
+    { hint:"くだもの を とったら うしろを むこう", map:[
+      "......",
+      "......",
+      ">.G..F",
+      "......",
+      "......",
+      "......"]},
+    { hint:"ひだりむきから すたーと。ぐるっと まわろう", map:[
+      ".....<",
+      ".#####",
+      ".....G",
+      "......",
+      "......",
+      "......"]},
+    { hint:"くだもの 2こ。どっちから とる？", map:[
+      "F....F",
+      "......",
+      "..##..",
+      "..##..",
+      "......",
+      "^....G"]},
+    { hint:"かべの むこうへ。くだものも わすれずに", map:[
+      "F.....",
+      "..#...",
+      "..#...",
+      "..#...",
+      "..#...",
+      ".^#.G."]},
+    { hint:"めいろ だよ。ゆっくり かんがえよう", map:[
+      "G.#...",
+      ".##.#.",
+      "....#.",
+      "##.##.",
+      "...#..",
+      "^#...#"]},
+    { hint:"さいごの もんだい！くだもの 3こ", map:[
+      "F...#G",
+      ".##.#.",
+      ".#..#.",
+      ".#.##.",
+      ".#....",
+      "^...F."]},
+  ]},
 ];
-// ===== そだてる =====
-const FRUITS = ["🍎","🍌","🍇","🍓","🍑","🍊"];
-// xp = たべた くだものの かず。この かずに なると せいちょう
+
+// ===== ちずを よみこむ =====
+function parseStage(s){
+  const n = s.map.length; let start=null, goal=null; const rocks=new Set(), fruits=[];
+  s.map.forEach((row,r) => [...row].forEach((ch,c) => {
+    const d = "^>v<".indexOf(ch);
+    if(d>=0) start={r,c,dir:d};
+    else if(ch==="G") goal={r,c};
+    else if(ch==="#") rocks.add(r*n+c);
+    else if(ch==="F") fruits.push({r,c});
+  }));
+  return {n, start, goal, rocks, fruits};
+}
+
+// ===== いちばん すくない かーどの こたえを さがす =====
+// じょうたい = ばしょ・むき・とった くだもの。かーど 1まい = こすと1（くりかえし＋まえ は 2）
+const DR=[-1,0,1,0], DC=[0,1,0,-1];
+function solve(P, useKuri){
+  const fIdx = new Map(P.fruits.map((f,i)=>[f.r*P.n+f.c, i]));
+  const full = (1<<P.fruits.length)-1;
+  const key = (r,c,d,m) => ((r*P.n+c)*4+d)*16+m;
+  const startM = 0;
+  const dist = new Map(), prev = new Map();
+  const k0 = key(P.start.r,P.start.c,P.start.dir,startM);
+  dist.set(k0,0);
+  let frontier = [[0,P.start.r,P.start.c,P.start.dir,startM]];
+  let best = null;
+  while(frontier.length){
+    frontier.sort((a,b)=>a[0]-b[0]);
+    const [cost,r,c,d,m] = frontier.shift();
+    const k = key(r,c,d,m);
+    if(dist.get(k) < cost) continue;
+    if(r===P.goal.r && c===P.goal.c && m===full){ best=k; break; }
+    const moves = [];
+    moves.push({cards:[{t:"migi"}], cost:1, r, c, d:(d+1)%4, m, cells:[]});
+    moves.push({cards:[{t:"hidari"}], cost:1, r, c, d:(d+3)%4, m, cells:[]});
+    // まえ を k かい
+    let rr=r, cc=c, mm=m; const cells=[];
+    for(let step=1; step<=(useKuri?5:1); step++){
+      rr+=DR[d]; cc+=DC[d];
+      if(rr<0||rr>=P.n||cc<0||cc>=P.n||P.rocks.has(rr*P.n+cc)) break;
+      const fi = fIdx.get(rr*P.n+cc); if(fi!==undefined) mm |= (1<<fi);
+      cells.push([rr,cc]);
+      const cards = step===1 ? [{t:"mae"}] : [{t:"kuri",n:step},{t:"mae"}];
+      moves.push({cards, cost:cards.length, r:rr, c:cc, d, m:mm, cells:[...cells]});
+      if(rr===P.goal.r && cc===P.goal.c && mm===full) break; // ごーるで とまる
+    }
+    for(const mv of moves){
+      const nk = key(mv.r,mv.c,mv.d,mv.m), nc = cost+mv.cost;
+      if(!dist.has(nk) || dist.get(nk) > nc){
+        dist.set(nk,nc); prev.set(nk,{k, mv}); frontier.push([nc,mv.r,mv.c,mv.d,mv.m]);
+      }
+    }
+  }
+  if(best===null) return null;
+  const cards=[], path=[[P.start.r,P.start.c]];
+  const segs=[]; let k=best;
+  while(k!==k0){ const p=prev.get(k); segs.unshift(p.mv); k=p.k; }
+  segs.forEach(mv => { cards.push(...mv.cards); path.push(...mv.cells); });
+  return {cards, path, count:cards.length};
+}
+
+// ===== せっていと せーぶ =====
+const CHAR = "ぴよ";
+const NAMES = {mae:"まえ", migi:"みぎ", hidari:"ひだり", kuri:"くりかえし"};
+const ICONS = {mae:"⬆️", migi:"↪️", hidari:"↩️", kuri:"🔁"};
+const FRUITS = ["🍎","🍌","🍇","🍓","🍑","🍊","🍒","🍈"];
 const LEVELS = [
-  {xp:0, name:"ちびぴよ",   size:0.70},
-  {xp:2, name:"ぴよ",       size:0.82},
-  {xp:5, name:"おおぴよ",   size:0.92},
-  {xp:9, name:"きんぐぴよ", size:1.00},
+  {xp:0,  name:`ちび${CHAR}`},
+  {xp:3,  name:CHAR},
+  {xp:8,  name:`おお${CHAR}`},
+  {xp:15, name:`きんぐ${CHAR}`},
+  {xp:24, name:`にじいろ${CHAR}`},
 ];
-const SAVE_KEY = "yajirushi-puzzle-v1";
-let save = {xp:0, basket:[]};
-try{ const v = JSON.parse(localStorage.getItem(SAVE_KEY)); if(v && Array.isArray(v.basket)) save = v; }catch(e){}
+const STEP_MS = 520;
+const SAVE_KEY = "yajirushi-puzzle-v2";
+let save = {xp:0, basket:[], cleared:{}};
+try{
+  const v = JSON.parse(localStorage.getItem(SAVE_KEY));
+  if(v && Array.isArray(v.basket)) save = Object.assign(save, v);
+  else { // まえの ばーじょんの そだち を ひきつぐ
+    const o = JSON.parse(localStorage.getItem("yajirushi-puzzle-v1"));
+    if(o && Array.isArray(o.basket)){ save.xp=o.xp||0; save.basket=o.basket; }
+  }
+}catch(e){}
 function persist(){ try{ localStorage.setItem(SAVE_KEY, JSON.stringify(save)); }catch(e){} }
 function levelOf(xp){ let l=0; LEVELS.forEach((L,i)=>{ if(xp>=L.xp) l=i; }); return l; }
 
-// きゃら の え（うえ を むいた むき）。れべるで みためが かわる
-function charSVG(lv){
-  const pct = Math.round(LEVELS[lv].size*100);
-  return `<svg viewBox="0 0 100 100" style="width:${pct}%;height:${pct}%;overflow:visible">
+let soundOn = true;
+const $ = id => document.getElementById(id);
+function say(text){
+  if(!soundOn || !("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang="ja-JP"; u.rate=0.9; u.pitch=1.2;
+  const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith("ja"));
+  if(v) u.voice=v;
+  speechSynthesis.speak(u);
+}
+function show(text, speak=true){ $("msg").textContent=text; if(speak) say(text); }
+const wait = ms => new Promise(r => setTimeout(r, ms));
+function pulse(el, cls){ el.classList.remove(cls); el.offsetHeight; el.classList.add(cls); }
+
+// ===== きゃら の え（うえ むき）=====
+function charSVG(lv, sizePct=100){
+  const s = [70,80,88,95,100][lv];
+  const p = Math.round(s*sizePct/100);
+  return `<svg viewBox="0 0 100 100" style="width:${p}%;height:${p}%;overflow:visible">
+  ${lv>=4 ? `<circle cx="50" cy="56" r="49" fill="none" stroke="url(#rb)" stroke-width="6"/>
+    <defs><linearGradient id="rb"><stop offset="0" stop-color="#ff5c6c"/><stop offset=".33" stop-color="#ffd23f"/><stop offset=".66" stop-color="#2fbf71"/><stop offset="1" stop-color="#4aa3ff"/></linearGradient></defs>` : ""}
   ${lv>=2 ? `<ellipse cx="12" cy="60" rx="10" ry="18" fill="#ffc400" stroke="#e0a800" stroke-width="3"/>
              <ellipse cx="88" cy="60" rx="10" ry="18" fill="#ffc400" stroke="#e0a800" stroke-width="3"/>` : ""}
   <circle cx="50" cy="56" r="38" fill="#ffd23f" stroke="#e0a800" stroke-width="4"/>
@@ -173,211 +482,300 @@ function charSVG(lv){
 function refreshChar(){
   const lv = levelOf(save.xp);
   $("heroBody").innerHTML = charSVG(lv);
+  $("menuChar").innerHTML = charSVG(lv);
+  $("menuName").textContent = `${LEVELS[lv].name}（さわると おうちへ）` + (save.basket.length ? `　🧺${save.basket.length}こ` : "");
   $("fruitCount").textContent = save.basket.length;
+  $("fruitBtn").classList.toggle("has", save.basket.length>0);
 }
-function renderHome(){
-  const lv = levelOf(save.xp), L = LEVELS[lv], next = LEVELS[lv+1];
-  $("homeName").textContent = L.name;
-  $("homeLv").textContent = next ? `あと ${next.xp - save.xp}こ たべると おおきくなるよ` : "いちばん おおきく なったよ！";
-  $("homeChar").innerHTML = charSVG(lv);
-  $("barIn").style.width = next ? `${(save.xp - L.xp)/(next.xp - L.xp)*100}%` : "100%";
-  const b = $("basket"); b.innerHTML = "";
-  if(save.basket.length===0) b.innerHTML = '<span class="empty">もんだいを とくと くだものが もらえるよ</span>';
-  save.basket.forEach((f,i) => {
-    const btn = document.createElement("button");
-    btn.className = "fruit"; btn.textContent = f;
-    btn.onclick = () => feed(i);
-    b.appendChild(btn);
+
+// ===== めにゅー =====
+let course=null, stageIdx=0, P=null, SOL=null, maxCards=0;
+function clearedCount(c){ return c.stages.filter((_,i)=>save.cleared[`${c.id}-${i}`]).length; }
+function showMenu(){
+  $("game").classList.add("hidden"); $("menu").classList.remove("hidden");
+  $("stagePick").classList.add("hidden"); $("courseList").classList.remove("hidden");
+  const list = $("courseList"); list.innerHTML="";
+  COURSES.forEach(c => {
+    const b = document.createElement("button");
+    b.className = `course ${c.cls}`;
+    b.innerHTML = `<span class="ic">${c.icon}</span><span><div class="nm">${c.name}</div><div class="ds">${c.desc}</div></span>
+      <span class="ct">${clearedCount(c)}/${c.stages.length}</span>`;
+    b.onclick = () => showStages(c);
+    list.appendChild(b);
   });
+  refreshChar();
+  show("こーすを えらんでね");
 }
-function feed(i){
-  const before = levelOf(save.xp);
-  save.basket.splice(i,1); save.xp++; persist();
-  const after = levelOf(save.xp);
-  renderHome(); refreshChar();
-  const c = $("homeChar"); c.classList.remove("eat"); c.offsetHeight; c.classList.add("eat");
-  say(after > before ? `やったー！ ${LEVELS[after].name} に せいちょう したよ！` : "もぐもぐ。おいしい！");
+function showStages(c){
+  course=c;
+  $("courseList").classList.add("hidden"); $("stagePick").classList.remove("hidden");
+  $("courseTitle").textContent = `${c.icon} ${c.name}`;
+  const g = $("stageGrid"); g.innerHTML="";
+  c.stages.forEach((_,i) => {
+    const done = save.cleared[`${c.id}-${i}`];
+    const open = i===0 || save.cleared[`${c.id}-${i-1}`] || done;
+    const b = document.createElement("button");
+    b.className = "sbtn" + (done ? " done" : "");
+    b.innerHTML = `${i+1}<span class="mk">${done ? "⭐" : open ? "" : "🔒"}</span>`;
+    b.disabled = !open;
+    b.onclick = () => loadStage(c, i);
+    g.appendChild(b);
+  });
+  say(`${c.name}。もんだいを えらんでね`);
 }
-function openHome(){
-  if(running) return;
-  renderHome(); $("home").classList.add("show");
-  const lv = levelOf(save.xp);
-  say(save.basket.length ? `${LEVELS[lv].name} に くだものを あげよう。さわってね` : `${LEVELS[lv].name} だよ。もんだいを とくと くだものが もらえるよ`);
-}
-function giveFruit(){
-  const f = FRUITS[Math.floor(Math.random()*FRUITS.length)];
-  save.basket.push(f); persist(); refreshChar();
-  const b = $("fruitBtn"); b.classList.remove("pop"); b.offsetHeight; b.classList.add("pop");
-  return f;
-}
-
-const NAMES = {mae:"まえ", migi:"みぎ", hidari:"ひだり", kuri:"くりかえし"};
-const ICONS = {mae:"⬆️", migi:"↪️", hidari:"↩️", kuri:"🔁"};
-const DR = [-1,0,1,0], DC = [0,1,0,-1];
-const N = 5, STEP_MS = 550;
-
-let stageIdx = 0, program = [], running = false, hero = {}, soundOn = true;
-const $ = id => document.getElementById(id);
-
-// ===== よみあげ =====
-function say(text){
-  if(!soundOn || !("speechSynthesis" in window)) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "ja-JP"; u.rate = 0.9; u.pitch = 1.2;
-  const v = speechSynthesis.getVoices().find(v => v.lang && v.lang.startsWith("ja"));
-  if(v) u.voice = v;
-  speechSynthesis.speak(u);
-}
-function show(text, speak=true){ $("msg").textContent = text; if(speak) say(text); }
 
 // ===== ばん =====
-function buildBoard(){
-  const s = STAGES[stageIdx];
-  const board = $("board");
-  board.querySelectorAll(".cell").forEach(e => e.remove());
-  for(let r=0;r<N;r++) for(let c=0;c<N;c++){
-    const d = document.createElement("div");
-    d.className = "cell"; d.id = `cell-${r}-${c}`;
-    if(s.goal.r===r && s.goal.c===c) d.textContent = "⭐";
-    if(s.rocks.some(([rr,cc]) => rr===r && cc===c)) d.textContent = "🪨";
-    board.insertBefore(d, $("hero"));
-  }
-  $("stageLabel").textContent = `もんだい ${stageIdx+1}/${STAGES.length}`;
-  resetHero();
+let hero={}, program=[], running=false, got=new Set(), hintLv=0, fails=0;
+function loadStage(c, i){
+  course=c; stageIdx=i;
+  P = parseStage(c.stages[i]);
+  SOL = solve(P, c.useKuri);
+  maxCards = SOL.count + c.slack;
+  program=[]; hintLv=0; fails=0;
+  $("menu").classList.add("hidden"); $("game").classList.remove("hidden");
+  $("palette").querySelector(".kuri").classList.toggle("hidden", !c.useKuri);
+  $("palette").classList.toggle("three", !c.useKuri);
+  $("stageLabel").textContent = `${c.icon} ${c.name} ${i+1}/${c.stages.length}`;
+  buildBoard(); renderProgram(); hideHint();
+  show(`もんだい ${i+1}。${c.stages[i].hint}`);
+  window.scrollTo(0,0);
 }
-function resetHero(){
-  const s = STAGES[stageIdx];
-  hero = {r:s.start.r, c:s.start.c, dir:s.start.dir, turns:s.start.dir};
-  document.querySelectorAll(".cell.path").forEach(e => e.classList.remove("path"));
+function buildBoard(){
+  const b = $("board"), n=P.n;
+  b.style.gridTemplateColumns = `repeat(${n},1fr)`;
+  b.style.gridTemplateRows = `repeat(${n},1fr)`;
+  b.querySelectorAll(".cell").forEach(e=>e.remove());
+  const fs = n<=5 ? "min(9vw,42px)" : n===6 ? "min(7.5vw,36px)" : "min(6.5vw,30px)";
+  for(let r=0;r<n;r++) for(let c=0;c<n;c++){
+    const d=document.createElement("div");
+    d.className="cell"; d.id=`cell-${r}-${c}`; d.style.fontSize=fs;
+    b.insertBefore(d, $("hero"));
+  }
+  const h=$("hero");
+  h.style.width = h.style.height = `calc((100% - 8px - ${(n-1)*4}px) / ${n})`;
+  resetBoard();
+}
+function resetBoard(){
+  got = new Set();
+  for(let r=0;r<P.n;r++) for(let c=0;c<P.n;c++){
+    const d=$(`cell-${r}-${c}`); d.classList.remove("path");
+    const foot = d.querySelector(".foot");
+    d.textContent = P.rocks.has(r*P.n+c) ? "🪨" : (P.goal.r===r&&P.goal.c===c) ? "⭐" : "";
+    if(foot) d.appendChild(foot);
+  }
+  P.fruits.forEach((f,i) => $(`cell-${f.r}-${f.c}`).prepend(document.createTextNode(FRUITS[i % FRUITS.length])));
+  hero = {r:P.start.r, c:P.start.c, dir:P.start.dir, turns:P.start.dir};
   placeHero(false);
 }
 function placeHero(animate=true){
-  const h = $("hero"), body = $("heroBody");
-  if(!animate){ h.style.transition = "none"; body.style.transition = "none"; }
-  // 4px ぱでぃんぐ + 4px ぎゃっぷ
+  const h=$("hero"), body=$("heroBody");
+  if(!animate){ h.style.transition="none"; body.style.transition="none"; }
   h.style.transform = `translate(calc(4px + ${hero.c} * (100% + 4px)), calc(4px + ${hero.r} * (100% + 4px)))`;
   body.style.transform = `rotate(${hero.turns*90}deg)`;
-  if(!animate){ h.offsetHeight; h.style.transition = ""; body.style.transition = ""; }
+  if(!animate){ h.offsetHeight; h.style.transition=""; body.style.transition=""; }
 }
 
 // ===== ぷろぐらむ =====
+function cardHTML(card){
+  return `<span class="ico">${ICONS[card.t]}</span>${card.t==="kuri" ? `<span class="count">${card.n}かい</span>` : NAMES[card.t]}`;
+}
 function renderProgram(activeIdx=-1){
-  const p = $("program"); p.innerHTML = "";
-  if(program.length===0){
-    p.innerHTML = '<span class="empty">ここに かーどが ならぶよ</span>';
-  }
+  const p=$("program"); p.innerHTML="";
+  if(program.length===0) p.innerHTML='<span class="empty">ここに かーどが ならぶよ</span>';
   program.forEach((card,i) => {
-    const b = document.createElement("button");
-    b.className = `card ${card.t}` + (i===activeIdx ? " now" : "");
-    b.innerHTML = `<span class="ico">${ICONS[card.t]}</span>${card.t==="kuri" ? `<span class="count">${card.n}かい</span>` : NAMES[card.t]}`;
-    b.onclick = () => {
-      if(running) return;
-      program.splice(i,1); renderProgram(); say("けしたよ");
-    };
+    const b=document.createElement("button");
+    b.className=`card ${card.t}`+(i===activeIdx?" now":"");
+    b.innerHTML=cardHTML(card);
+    b.onclick=()=>{ if(running) return; program.splice(i,1); renderProgram(); say("けしたよ"); };
     p.appendChild(b);
   });
-  const max = STAGES[stageIdx].max;
-  $("left").textContent = `あと ${max - program.length}まい おけるよ`;
+  $("left").textContent = `あと ${maxCards-program.length}まい おけるよ`;
 }
 function addCard(t){
   if(running) return;
-  const max = STAGES[stageIdx].max;
-  if(program.length >= max){ show(`かーどは ${max}まいまでだよ`); return; }
+  if(program.length>=maxCards){ show(`かーどは ${maxCards}まいまでだよ`); return; }
   if(t==="kuri"){
-    // くりかえしを つづけて おすと かいすうが ふえる
-    const last = program[program.length-1];
+    const last=program[program.length-1];
     if(last && last.t==="kuri"){ last.n = last.n>=5 ? 2 : last.n+1; renderProgram(); say(`${last.n}かい`); return; }
-    program.push({t, n:2}); renderProgram();
+    program.push({t,n:2}); renderProgram();
     say("くりかえし 2かい。もういちど おすと かずが ふえるよ。つぎの かーどを くりかえすよ");
     return;
   }
   program.push({t}); renderProgram(); say(NAMES[t]);
 }
-
-// くりかえし(n) + つぎの かーど → そのかーどを n かい
 function expand(){
-  const steps = [];
+  const steps=[];
   for(let i=0;i<program.length;i++){
-    const c = program[i];
+    const c=program[i];
     if(c.t==="kuri"){
-      const next = program[i+1];
+      const next=program[i+1];
       if(!next || next.t==="kuri") continue;
-      for(let k=0;k<c.n;k++) steps.push({t:next.t, src:[i,i+1]});
+      for(let k=0;k<c.n;k++) steps.push({t:next.t, at:i+1});
       i++;
-    } else steps.push({t:c.t, src:[i]});
+    } else steps.push({t:c.t, at:i});
   }
   return steps;
 }
+const atGoalDone = () => hero.r===P.goal.r && hero.c===P.goal.c && got.size===P.fruits.length;
 
-const wait = ms => new Promise(r => setTimeout(r, ms));
 async function run(){
   if(running) return;
   if(program.length===0){ show("かーどを ならべてね"); return; }
-  running = true; $("run").disabled = $("clear").disabled = true;
-  resetHero(); await wait(250);
-  const s = STAGES[stageIdx];
-  const steps = expand();
-  let fail = null;
-  for(const st of steps){
-    renderProgram(st.src[st.src.length-1]);
+  running=true; $("run").disabled=$("clear").disabled=true;
+  resetBoard(); await wait(250);
+  let fail=null;
+  for(const st of expand()){
+    renderProgram(st.at);
     if(st.t==="migi"){ hero.dir=(hero.dir+1)%4; hero.turns++; }
     else if(st.t==="hidari"){ hero.dir=(hero.dir+3)%4; hero.turns--; }
     else {
-      const nr = hero.r + DR[hero.dir], nc = hero.c + DC[hero.dir];
-      if(nr<0||nr>=N||nc<0||nc>=N){ fail="そとには でられないよ"; }
-      else if(s.rocks.some(([r,c]) => r===nr && c===nc)){ fail="いわに ぶつかっちゃった"; }
-      if(fail){ bump(); break; }
+      const nr=hero.r+DR[hero.dir], nc=hero.c+DC[hero.dir];
+      if(nr<0||nr>=P.n||nc<0||nc>=P.n) fail="そとには でられないよ";
+      else if(P.rocks.has(nr*P.n+nc)) fail="いわに ぶつかっちゃった";
+      if(fail){ pulse($("hero"),"bump"); break; }
       $(`cell-${hero.r}-${hero.c}`).classList.add("path");
-      hero.r = nr; hero.c = nc;
+      hero.r=nr; hero.c=nc;
+      const fi = P.fruits.findIndex(f=>f.r===nr&&f.c===nc);
+      if(fi>=0 && !got.has(fi)){
+        got.add(fi);
+        const cell=$(`cell-${nr}-${nc}`);
+        if(cell.firstChild && cell.firstChild.nodeType===3) cell.firstChild.remove();
+        say("ぱくっ");
+      }
     }
     placeHero();
     await wait(STEP_MS);
-    if(hero.r===s.goal.r && hero.c===s.goal.c) break;
+    if(atGoalDone()) break;
   }
   renderProgram();
-  running = false; $("run").disabled = $("clear").disabled = false;
-  if(hero.r===s.goal.r && hero.c===s.goal.c){ win(); return; }
-  show((fail || "ほしまで とどかなかったね") + "。もういちど やってみよう");
-  await wait(1800); if(!running) resetHero();
+  running=false; $("run").disabled=$("clear").disabled=false;
+  if(atGoalDone()){ win(); return; }
+  if(!fail){
+    fail = (hero.r===P.goal.r && hero.c===P.goal.c) ? "くだものを ぜんぶ とってから ほしに いこう" : "ほしまで とどかなかったね";
+  }
+  fails++;
+  $("hintBtn").classList.add("show");
+  show(`${fail}。おしい！こまったら ひんとを みてね`);
+  await wait(1800); if(!running) resetBoard();
 }
-function bump(){ const h=$("hero"); h.classList.remove("bump"); h.offsetHeight; h.classList.add("bump"); }
+
+// ===== ひんと =====
+// 1かいめ: あしあと（とおりみち）を ばんに だす
+// 2かいめ: こたえの かーどを みせる
+function hideHint(){
+  $("hintBtn").classList.remove("show"); $("hintBox").classList.remove("show");
+  document.querySelectorAll(".foot").forEach(e=>e.remove());
+}
+function showHint(){
+  hintLv = Math.min(hintLv+1, 2);
+  if(hintLv===1){
+    document.querySelectorAll(".foot").forEach(e=>e.remove());
+    SOL.path.slice(1).forEach(([r,c]) => {
+      const cell=$(`cell-${r}-${c}`);
+      if(cell.querySelector(".foot")) return;
+      const f=document.createElement("span"); f.className="foot"; f.textContent="👣";
+      cell.appendChild(f);
+    });
+    $("hintText").textContent = "👣 あしあとの ところを とおると いけるよ";
+    $("hintCards").innerHTML = "";
+    $("hintBox").classList.add("show");
+    $("hintBtn").textContent = "💡 もっと ひんと（こたえ）";
+    say("あしあとの ところを とおると いけるよ。ぴよの むきに きを つけてね");
+  } else {
+    $("hintText").textContent = `こたえの れい（${SOL.count}まい）`;
+    const hc=$("hintCards"); hc.innerHTML="";
+    SOL.cards.forEach(card => {
+      const d=document.createElement("div"); d.className=`card ${card.t}`; d.innerHTML=cardHTML(card); hc.appendChild(d);
+    });
+    $("hintBtn").classList.remove("show");
+    say("こたえの れいだよ。おなじように ならべてみよう");
+  }
+  $("hintBox").scrollIntoView({behavior:"smooth", block:"nearest"});
+}
+
+// ===== くりあ と ごほうび =====
 function win(){
-  const h=$("hero"); h.classList.remove("joy"); h.offsetHeight; h.classList.add("joy");
-  const last = stageIdx === STAGES.length-1;
+  pulse($("hero"),"joy");
+  const k=`${course.id}-${stageIdx}`, first=!save.cleared[k];
+  const last = stageIdx===course.stages.length-1;
+  let fruitMsg="", speech="";
+  if(first){
+    save.cleared[k]=true;
+    const n = 1 + P.fruits.length; // ばんの くだもの も もらえる
+    const got=[]; for(let i=0;i<n;i++){ const f=FRUITS[Math.floor(Math.random()*FRUITS.length)]; save.basket.push(f); got.push(f); }
+    persist(); refreshChar(); pulse($("fruitBtn"),"pop");
+    fruitMsg = `${got.join("")} を もらったよ！`;
+    speech = `くだものを ${n}こ もらったよ。${CHAR}に あげてね`;
+  } else {
+    fruitMsg = "（くだものは はじめて とけた ときだけ）";
+  }
   $("ovFace").textContent = last ? "🏆" : "🎉";
-  $("ovText").textContent = last ? "ぜんぶ できたね！すごい！" : "できたね！やったね！";
-  $("ovBtn").textContent = last ? "さいしょから" : "つぎへ";
-  const f = giveFruit();
-  $("ovFruit").textContent = `${f} を もらったよ！`;
-  setTimeout(() => { $("overlay").classList.add("show"); say($("ovText").textContent + "。くだものを もらったよ。おうちで あげてね"); }, 700);
+  $("ovText").textContent = last ? `${course.name} ぜんぶ できたね！` : "できたね！やったね！";
+  $("ovFruit").textContent = fruitMsg;
+  $("ovFeed").classList.toggle("hidden", save.basket.length===0);
+  $("ovNext").textContent = last ? "めにゅーへ" : "つぎの もんだい";
+  hideHint();
+  setTimeout(()=>{ $("overlay").classList.add("show"); say($("ovText").textContent + "。" + speech); }, 700);
 }
-function loadStage(i){
-  stageIdx = i; program = [];
-  buildBoard(); renderProgram();
-  show(`もんだい ${i+1}。${STAGES[i].hint}`);
+function nextStage(){
+  $("overlay").classList.remove("show");
+  if(stageIdx===course.stages.length-1){ showMenu(); showStages(course); }
+  else loadStage(course, stageIdx+1);
 }
+
+// ===== おうち =====
+function renderHome(){
+  const lv=levelOf(save.xp), L=LEVELS[lv], next=LEVELS[lv+1];
+  $("homeName").textContent=L.name;
+  $("homeLv").textContent = next ? `あと ${next.xp-save.xp}こ たべると おおきくなるよ` : "いちばん すごい すがたに なったよ！";
+  $("homeChar").innerHTML=charSVG(lv);
+  $("barIn").style.width = next ? `${(save.xp-L.xp)/(next.xp-L.xp)*100}%` : "100%";
+  const b=$("basket"); b.innerHTML="";
+  if(save.basket.length===0) b.innerHTML='<span class="empty">もんだいを とくと くだものが もらえるよ</span>';
+  save.basket.forEach((f,i)=>{
+    const btn=document.createElement("button"); btn.className="fruit"; btn.textContent=f;
+    btn.onclick=()=>feed(i); b.appendChild(btn);
+  });
+}
+function feed(i){
+  const before=levelOf(save.xp);
+  save.basket.splice(i,1); save.xp++; persist();
+  const after=levelOf(save.xp);
+  renderHome(); refreshChar(); pulse($("homeChar"),"eat");
+  say(after>before ? `やったー！ ${LEVELS[after].name} に せいちょう したよ！` : "もぐもぐ。おいしい！");
+}
+function openHome(){
+  if(running) return;
+  $("overlay").classList.remove("show");
+  renderHome(); $("home").classList.add("show");
+  const lv=levelOf(save.xp);
+  say(save.basket.length ? `${LEVELS[lv].name} に くだものを あげよう。さわってね` : `${LEVELS[lv].name} だよ。もんだいを とくと くだものが もらえるよ`);
+}
+let homeFromWin=false;
 
 // ===== いべんと =====
-document.querySelectorAll("#palette .card").forEach(b => b.onclick = () => addCard(b.dataset.t));
-$("run").onclick = run;
-$("clear").onclick = () => { if(running) return; program=[]; renderProgram(); resetHero(); say("ぜんぶ けしたよ"); };
-$("ovBtn").onclick = () => {
-  $("overlay").classList.remove("show");
-  loadStage(stageIdx === STAGES.length-1 ? 0 : stageIdx+1);
+document.querySelectorAll("#palette .card").forEach(b => b.onclick=()=>addCard(b.dataset.t));
+$("run").onclick=run;
+$("clear").onclick=()=>{ if(running) return; program=[]; renderProgram(); resetBoard(); say("ぜんぶ けしたよ"); };
+$("hintBtn").onclick=showHint;
+$("ovNext").onclick=nextStage;
+$("ovFeed").onclick=()=>{ homeFromWin=true; openHome(); };
+$("homeClose").onclick=()=>{
+  $("home").classList.remove("show");
+  if(homeFromWin){ homeFromWin=false; nextStage(); }
 };
-$("sound").onclick = () => {
-  soundOn = !soundOn; $("sound").textContent = soundOn ? "🔊" : "🔇";
-  if(!soundOn && "speechSynthesis" in window) speechSynthesis.cancel();
-  else say("おとを だすよ");
-};
-$("fruitBtn").onclick = openHome;
-$("homeClose").onclick = () => { $("home").classList.remove("show"); say("がんばろう"); };
-$("msg").onclick = () => say($("msg").textContent); // もういちど きく
-if("speechSynthesis" in window) speechSynthesis.onvoiceschanged = () => {};
+$("fruitBtn").onclick=openHome;
+$("menuChar").onclick=openHome;
+$("toMenu").onclick=()=>{ if(running) return; showMenu(); if(course) showStages(course); };
+$("backCourse").onclick=showMenu;
+document.querySelectorAll(".sound").forEach(b => b.onclick=()=>{
+  soundOn=!soundOn;
+  document.querySelectorAll(".sound").forEach(x=>x.textContent = soundOn ? "🔊" : "🔇");
+  if(!soundOn && "speechSynthesis" in window) speechSynthesis.cancel(); else say("おとを だすよ");
+});
+$("msg").onclick=()=>say($("msg").textContent);
 
-refreshChar();
-loadStage(0);
+showMenu();
 </script>
 </body>
 </html>
