@@ -112,8 +112,8 @@
   .fruit:active{transform:translateY(2px); box-shadow:none;}
   #basket .empty{color:#b5a78c; font-size:15px; align-self:center;}
   #homeClose{width:100%; background:var(--pink); color:#fff;}
-  #charPick{display:flex; justify-content:center; gap:10px; margin:-4px 0 14px;}
-  .cpick{border:3px solid transparent; background:#fff; border-radius:16px; width:72px; height:72px; padding:4px; cursor:pointer; box-shadow:0 3px 0 #0002;}
+  #charPick{display:flex; justify-content:center; gap:8px; margin:-4px 0 14px;}
+  .cpick{border:3px solid transparent; background:#fff; border-radius:16px; width:min(62px,17vw); height:min(62px,17vw); padding:4px; cursor:pointer; box-shadow:0 3px 0 #0002;}
   .cpick.on{border-color:var(--pink);}
   .cpick svg, .cpick img{width:100%; height:100%; object-fit:contain;}
   #resetBtn{display:block; margin:28px auto 0; border:none; background:none; color:var(--sub); font-size:14px; text-decoration:underline; cursor:pointer;}
@@ -452,6 +452,7 @@ const CHARS = [
   {id:"piyo", name:"ぴよ",     img:"img/chick_"},
   {id:"usa",  name:"うさぴょん", img:"img/rabbit_"},
   {id:"wan",  name:"わんこ",   img:"img/dog_"},
+  {id:"pan",  name:"ぱんだ",   img:"img/panda_"},
 ];
 const NAMES = {mae:"まえ", migi:"みぎ", hidari:"ひだり", kuri:"くりかえし"};
 const ICONS = {mae:"⬆️", migi:"↪️", hidari:"↩️", kuri:"🔁"};
