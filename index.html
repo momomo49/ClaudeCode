@@ -437,6 +437,7 @@ function solve(P, useKuri){
 const CHARS = [
   {id:"cat",  name:"にゃんこ", img:"img/cat_"},
   {id:"piyo", name:"ぴよ",     img:"img/chick_"},
+  {id:"usa",  name:"うさぴょん", img:"img/rabbit_"},
 ];
 const NAMES = {mae:"まえ", migi:"みぎ", hidari:"ひだり", kuri:"くりかえし"};
 const ICONS = {mae:"⬆️", migi:"↪️", hidari:"↩️", kuri:"🔁"};
@@ -518,7 +519,7 @@ function refreshChar(){
     b.onclick = () => { save.char = ch.id; persist(); refreshChar(); say(`${lvName(levelOf(save.xp))} に するよ`); };
     cp.appendChild(b);
   });
-  $("menuName").textContent = `${lvName(lv)}（さわると おうちへ）` + (save.basket.length ? `　🧺${save.basket.length}こ` : "");
+  $("menuName").textContent = `${lvName(lv)}` + (save.basket.length ? `　🧺${save.basket.length}こ` : "");
   $("fruitCount").textContent = save.basket.length;
   $("fruitBtn").classList.toggle("has", save.basket.length>0);
 }
