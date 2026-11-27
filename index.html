@@ -116,6 +116,8 @@
   .cpick{border:3px solid transparent; background:#fff; border-radius:16px; width:72px; height:72px; padding:4px; cursor:pointer; box-shadow:0 3px 0 #0002;}
   .cpick.on{border-color:var(--pink);}
   .cpick svg, .cpick img{width:100%; height:100%; object-fit:contain;}
+  #resetBtn{display:block; margin:28px auto 0; border:none; background:none; color:var(--sub); font-size:14px; text-decoration:underline; cursor:pointer;}
+  #resetOk{background:#ff5c6c; color:#fff;} #resetNo{background:#fff;}
   .hidden{display:none !important;}
 </style>
 </head>
@@ -132,6 +134,7 @@
   <div id="menuName"></div>
   <div id="charPick"></div>
   <div id="courseList"></div>
+  <button id="resetBtn">さいしょから やりなおす</button>
   <div id="stagePick" class="hidden">
     <div id="courseTitle"></div>
     <div id="stageGrid"></div>
@@ -178,6 +181,16 @@
   <div class="ovBtns">
     <button class="big" id="ovFeed">🏠 ごはんを あげる</button>
     <button class="big" id="ovNext">つぎへ</button>
+  </div>
+</div></div>
+
+<!-- ========== りせっと かくにん ========== -->
+<div id="resetOv" class="ov"><div class="ovBox">
+  <div style="font-size:56px">⚠️</div>
+  <div id="ovText2" style="font-size:20px;font-weight:bold;margin:8px 0 16px">ほんとうに さいしょから やりなおす？<br><span style="font-size:15px;color:var(--sub)">といた もんだい・くだもの・そだち が ぜんぶ きえるよ</span></div>
+  <div class="ovBtns">
+    <button class="big" id="resetNo">やめる</button>
+    <button class="big" id="resetOk">けして さいしょから</button>
   </div>
 </div></div>
 
@@ -530,7 +543,7 @@ let course=null, stageIdx=0, P=null, SOL=null, maxCards=0;
 function clearedCount(c){ return c.stages.filter((_,i)=>save.cleared[`${c.id}-${i}`]).length; }
 function showMenu(){
   $("game").classList.add("hidden"); $("menu").classList.remove("hidden");
-  $("stagePick").classList.add("hidden"); $("courseList").classList.remove("hidden");
+  $("stagePick").classList.add("hidden"); $("courseList").classList.remove("hidden"); $("resetBtn").classList.remove("hidden");
   const list = $("courseList"); list.innerHTML="";
   COURSES.forEach(c => {
     const b = document.createElement("button");
@@ -545,7 +558,7 @@ function showMenu(){
 }
 function showStages(c){
   course=c;
-  $("courseList").classList.add("hidden"); $("stagePick").classList.remove("hidden");
+  $("courseList").classList.add("hidden"); $("stagePick").classList.remove("hidden"); $("resetBtn").classList.add("hidden");
   $("courseTitle").textContent = `${c.icon} ${c.name}`;
   const g = $("stageGrid"); g.innerHTML="";
   c.stages.forEach((_,i) => {
@@ -807,6 +820,15 @@ $("fruitBtn").onclick=openHome;
 $("menuChar").onclick=openHome;
 $("toMenu").onclick=()=>{ if(running) return; showMenu(); if(course) showStages(course); };
 $("backCourse").onclick=showMenu;
+// しんちょく りせっと（えらんだ きゃら は のこす）
+$("resetBtn").onclick=()=>{ $("resetOv").classList.add("show"); say("ほんとうに さいしょから やりなおす？"); };
+$("resetNo").onclick=()=>{ $("resetOv").classList.remove("show"); };
+$("resetOk").onclick=()=>{
+  save = {xp:0, basket:[], cleared:{}, char:save.char};
+  persist();
+  $("resetOv").classList.remove("show");
+  showMenu(); say("さいしょから やりなおすよ。がんばろう！");
+};
 document.querySelectorAll(".sound").forEach(b => b.onclick=()=>{
   soundOn=!soundOn;
   document.querySelectorAll(".sound").forEach(x=>x.textContent = soundOn ? "🔊" : "🔇");
